@@ -12,6 +12,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      padding: 16px;
       background: linear-gradient(180deg, #4ec0ca 0%, #87ceeb 60%, #98d8a8 100%);
       font-family: "Segoe UI", system-ui, sans-serif;
       user-select: none;
@@ -23,6 +24,44 @@
       font-size: 2rem;
       letter-spacing: 2px;
     }
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .game-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .name-row label {
+      color: #fff;
+      font-weight: 600;
+      text-shadow: 1px 1px 0 #2d4a3e;
+      white-space: nowrap;
+    }
+    #playerName {
+      flex: 1;
+      padding: 10px 12px;
+      border: 3px solid #5a3e2b;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+    #playerName:focus {
+      border-color: #e85d04;
+      box-shadow: 0 0 0 2px rgba(232, 93, 4, 0.35);
+    }
     #game {
       display: block;
       border: 4px solid #5a3e2b;
@@ -31,20 +70,138 @@
       cursor: pointer;
       background: #70c5ce;
     }
+    .leaderboard {
+      width: 220px;
+      min-height: 200px;
+      background: rgba(255,255,255,0.92);
+      border: 4px solid #5a3e2b;
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .leaderboard h2 {
+      font-size: 1.1rem;
+      color: #5a3e2b;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .lb-mode {
+      font-size: 0.7rem;
+      color: #666;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .lb-mode.global { color: #2d6a4f; font-weight: 600; }
+    #leaderboardList {
+      list-style: none;
+    }
+    #leaderboardList li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 4px;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 0.9rem;
+    }
+    #leaderboardList li:last-child { border-bottom: none; }
+    #leaderboardList li.you {
+      background: #fff3cd;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    #leaderboardList .rank {
+      width: 22px;
+      color: #e85d04;
+      font-weight: 700;
+    }
+    #leaderboardList .name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 6px;
+    }
+    #leaderboardList .pts {
+      font-weight: 700;
+      color: #2d6a4f;
+    }
+    #leaderboardList .empty {
+      justify-content: center;
+      color: #888;
+      font-style: italic;
+      border: none;
+    }
     p.hint {
       margin-top: 12px;
       color: #2d4a3e;
       font-size: 0.95rem;
+      text-align: center;
+    }
+    .setup-banner {
+      max-width: 640px;
+      margin: 0 auto 12px;
+      padding: 12px 16px;
+      background: #fff3cd;
+      border: 2px solid #e85d04;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #5a3e2b;
+      line-height: 1.45;
+      text-align: center;
+    }
+    .setup-banner a { color: #e85d04; font-weight: 700; }
+    .setup-banner.hidden { display: none; }
+    @media (max-width: 680px) {
+      .leaderboard { width: 100%; max-width: 400px; }
     }
   </style>
 </head>
 <body>
   <h1>Flappy Bird</h1>
-  <canvas id="game" width="400" height="600"></canvas>
-  <p class="hint">Click, tap, or press Space to flap</p>
+  <div class="setup-banner" id="setupBanner">
+    Leaderboard is <strong>only on this device</strong> until you connect Firebase (free).
+    Open <strong>GLOBAL-LEADERBOARD.md</strong> in this folder for setup — then friends on other phones will see the same names and scores.
+  </div>
+  <div class="layout">
+    <div class="game-col">
+      <div class="name-row">
+        <label for="playerName">Name</label>
+        <input id="playerName" type="text" maxlength="16" placeholder="Enter your name" autocomplete="nickname" />
+      </div>
+      <canvas id="game" width="400" height="600"></canvas>
+    </div>
+    <aside class="leaderboard">
+      <h2>Leaderboard</h2>
+      <p class="lb-mode" id="lbMode">Loading…</p>
+      <ol id="leaderboardList"></ol>
+    </aside>
+  </div>
+  <p class="hint">Enter your name, then click, tap, or press Space to flap</p>
+
+  <script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <script>
+    const FIREBASE_CONFIG = window.FIREBASE_CONFIG || {
+      apiKey: "",
+      authDomain: "",
+      databaseURL: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    const LEADERBOARD_KEY = "flappyLeaderboard";
+    const PLAYER_NAME_KEY = "flappyPlayerName";
+    const TOP_N = 10;
+
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
+    const nameInput = document.getElementById("playerName");
+    const leaderboardList = document.getElementById("leaderboardList");
+    const lbMode = document.getElementById("lbMode");
+    const setupBanner = document.getElementById("setupBanner");
 
     const W = canvas.width;
     const H = canvas.height;
@@ -57,6 +214,54 @@
     const PIPE_INTERVAL = 90;
 
     let bird, pipes, frame, score, best, state;
+    let scoreSubmitted = false;
+    let db = null;
+    let leaderboardEntries = [];
+
+    function firebaseEnabled() {
+      return Boolean(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.databaseURL);
+    }
+
+    function initFirebase() {
+      if (!firebaseEnabled() || typeof firebase === "undefined") return;
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.database().ref("scores");
+        lbMode.textContent = "Global — all players";
+        lbMode.classList.add("global");
+        setupBanner.classList.add("hidden");
+        db.on("value", snap => {
+          const data = snap.val();
+          leaderboardEntries = data ? Object.values(data) : [];
+          renderLeaderboard();
+        });
+      } catch (e) {
+        console.warn("Firebase init failed", e);
+        lbMode.textContent = "Firebase error — check database & rules";
+        setupBanner.classList.remove("hidden");
+        setupBanner.innerHTML = "Could not connect to Firebase. In console.firebase.com: create <strong>Realtime Database</strong>, publish <strong>Rules</strong>, then refresh (Ctrl+F5).";
+        loadLocalLeaderboard();
+      }
+    }
+
+    function loadPlayerName() {
+      try {
+        const saved = localStorage.getItem(PLAYER_NAME_KEY);
+        if (saved) nameInput.value = saved;
+      } catch {}
+    }
+
+    function savePlayerName() {
+      try { localStorage.setItem(PLAYER_NAME_KEY, getPlayerName()); } catch {}
+    }
+
+    function getPlayerName() {
+      return nameInput.value.trim().slice(0, 16);
+    }
+
+    function isValidName(name) {
+      return name.length >= 1 && name.length <= 16 && /^[\w \-]+$/.test(name);
+    }
 
     function loadBest() {
       try { return parseInt(localStorage.getItem("flappyBest") || "0", 10); }
@@ -67,12 +272,100 @@
       try { localStorage.setItem("flappyBest", String(n)); } catch {}
     }
 
+    function loadLocalLeaderboard() {
+      try {
+        leaderboardEntries = JSON.parse(localStorage.getItem(LEADERBOARD_KEY) || "[]");
+      } catch {
+        leaderboardEntries = [];
+      }
+      lbMode.textContent = "This device only";
+      lbMode.classList.remove("global");
+      setupBanner.classList.remove("hidden");
+      renderLeaderboard();
+    }
+
+    function saveLocalLeaderboard(entries) {
+      try { localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries)); } catch {}
+    }
+
+    function topScores(entries) {
+      const bestByName = new Map();
+      for (const e of entries) {
+        const name = (e.name || "").trim();
+        const pts = Number(e.score) || 0;
+        if (!name) continue;
+        const key = name.toLowerCase();
+        const prev = bestByName.get(key);
+        if (!prev || pts > prev.score) {
+          bestByName.set(key, { name, score: pts });
+        }
+      }
+      return [...bestByName.values()]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, TOP_N);
+    }
+
+    function renderLeaderboard() {
+      const tops = topScores(leaderboardEntries);
+      const current = getPlayerName().toLowerCase();
+      leaderboardList.innerHTML = "";
+
+      if (!tops.length) {
+        const li = document.createElement("li");
+        li.className = "empty";
+        li.textContent = "No scores yet — be first!";
+        leaderboardList.appendChild(li);
+        return;
+      }
+
+      tops.forEach((row, i) => {
+        const li = document.createElement("li");
+        if (row.name.toLowerCase() === current) li.classList.add("you");
+        li.innerHTML =
+          `<span class="rank">${i + 1}.</span>` +
+          `<span class="name" title="${escapeHtml(row.name)}">${escapeHtml(row.name)}</span>` +
+          `<span class="pts">${row.score}</span>`;
+        leaderboardList.appendChild(li);
+      });
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function submitScore(points) {
+      if (points <= 0 || scoreSubmitted) return;
+      const name = getPlayerName();
+      if (!isValidName(name)) return;
+
+      scoreSubmitted = true;
+      savePlayerName();
+
+      const entry = { name, score: points, ts: Date.now() };
+
+      if (db) {
+        db.push(entry).catch(() => {
+          leaderboardEntries.push(entry);
+          saveLocalLeaderboard(leaderboardEntries);
+          renderLeaderboard();
+        });
+        return;
+      }
+
+      leaderboardEntries.push(entry);
+      saveLocalLeaderboard(leaderboardEntries);
+      renderLeaderboard();
+    }
+
     function reset() {
       bird = { x: 80, y: H / 2, vy: 0, r: 18, rot: 0 };
       pipes = [];
       frame = 0;
       score = 0;
       best = loadBest();
+      scoreSubmitted = false;
       state = "ready";
     }
 
@@ -84,7 +377,15 @@
     }
 
     function flap() {
-      if (state === "ready") {
+      const name = getPlayerName();
+      if (!isValidName(name)) {
+        state = "needName";
+        nameInput.focus();
+        return;
+      }
+      savePlayerName();
+
+      if (state === "ready" || state === "needName") {
         state = "play";
         bird.vy = FLAP;
         return;
@@ -96,6 +397,12 @@
     function hitBox(a, b) {
       return a.x < b.x + b.w && a.x + a.w > b.x &&
              a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+
+    function gameOver() {
+      state = "over";
+      if (score > best) { best = score; saveBest(best); }
+      submitScore(score);
     }
 
     function update() {
@@ -123,7 +430,7 @@
       const br = bird.r * 2;
 
       if (bird.y - bird.r < 0 || bird.y + bird.r > H) {
-        state = "over";
+        gameOver();
         return;
       }
 
@@ -132,7 +439,7 @@
         const botPipe = { x: p.x, y: p.top + PIPE_GAP, w: PIPE_WIDTH, h: H - p.top - PIPE_GAP };
         const birdBox = { x: bx + 4, y: by + 4, w: br - 8, h: br - 8 };
         if (hitBox(birdBox, topPipe) || hitBox(birdBox, botPipe)) {
-          state = "over";
+          gameOver();
           return;
         }
       }
@@ -205,6 +512,7 @@
     }
 
     function drawScore() {
+      if (state !== "play" && state !== "over") return;
       ctx.fillStyle = "#fff";
       ctx.strokeStyle = "#000";
       ctx.lineWidth = 4;
@@ -221,21 +529,37 @@
       ctx.fillStyle = "#fff";
       ctx.strokeStyle = "#e85d04";
       ctx.lineWidth = 5;
-      ctx.font = "bold 36px Segoe UI, sans-serif";
+      ctx.font = "bold 32px Segoe UI, sans-serif";
       ctx.textAlign = "center";
-      ctx.strokeText(title, W / 2, H / 2 - 20);
-      ctx.fillText(title, W / 2, H / 2 - 20);
-      ctx.font = "18px Segoe UI, sans-serif";
+      ctx.strokeText(title, W / 2, H / 2 - 36);
+      ctx.fillText(title, W / 2, H / 2 - 36);
+      ctx.font = "17px Segoe UI, sans-serif";
       ctx.lineWidth = 2;
       ctx.strokeStyle = "#333";
-      ctx.strokeText(sub, W / 2, H / 2 + 24);
+      ctx.strokeText(sub, W / 2, H / 2 + 4);
       ctx.fillStyle = "#ffdd57";
-      ctx.fillText(sub, W / 2, H / 2 + 24);
-      if (best > 0) {
-        ctx.font = "16px Segoe UI, sans-serif";
+      ctx.fillText(sub, W / 2, H / 2 + 4);
+      if (state === "over" && score > 0) {
+        ctx.font = "15px Segoe UI, sans-serif";
         ctx.fillStyle = "#fff";
-        ctx.fillText("Best: " + best, W / 2, H / 2 + 56);
+        ctx.fillText("Score saved to leaderboard!", W / 2, H / 2 + 36);
       }
+      if (best > 0) {
+        ctx.font = "15px Segoe UI, sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.fillText("Your best: " + best, W / 2, H / 2 + 62);
+      }
+    }
+
+    function drawPlayerTag() {
+      const name = getPlayerName();
+      if (!name || state === "needName") return;
+      ctx.font = "14px Segoe UI, sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillStyle = "rgba(0,0,0,0.4)";
+      ctx.fillRect(8, 8, ctx.measureText(name).width + 16, 24);
+      ctx.fillStyle = "#fff";
+      ctx.fillText(name, 16, 25);
     }
 
     function draw() {
@@ -243,12 +567,15 @@
       pipes.forEach(drawPipe);
       drawGround();
       drawBird();
+      drawPlayerTag();
       drawScore();
 
       if (state === "ready") {
-        drawOverlay("Get Ready!", "Tap or Space to start");
+        drawOverlay("Get Ready!", getPlayerName() ? "Tap or Space to start" : "Enter your name above");
+      } else if (state === "needName") {
+        drawOverlay("Enter your name", "Use the box above, then play");
       } else if (state === "over") {
-        drawOverlay("Game Over", "Tap or Space to retry");
+        drawOverlay("Game Over", "Score: " + score + " — Tap to retry");
       }
     }
 
@@ -258,11 +585,22 @@
       requestAnimationFrame(loop);
     }
 
+    nameInput.addEventListener("input", () => {
+      savePlayerName();
+      renderLeaderboard();
+      if (state === "needName" && isValidName(getPlayerName())) state = "ready";
+    });
+
     canvas.addEventListener("click", flap);
     document.addEventListener("keydown", e => {
       if (e.code === "Space") { e.preventDefault(); flap(); }
+      if (document.activeElement === nameInput && e.code === "Space") return;
     });
     canvas.addEventListener("touchstart", e => { e.preventDefault(); flap(); }, { passive: false });
+
+    loadPlayerName();
+    if (firebaseEnabled()) initFirebase();
+    else loadLocalLeaderboard();
 
     reset();
     loop();
