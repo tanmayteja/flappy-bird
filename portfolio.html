@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tanmay Teja</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #030815;
+      --panel: rgba(8, 22, 45, 0.7);
+      --panel-strong: rgba(10, 31, 63, 0.84);
+      --blue: #38bdf8;
+      --cyan: #67e8f9;
+      --ink: #e6f6ff;
+      --soft: #9fb8d2;
+      --line: rgba(103, 232, 249, 0.24);
+      --pink: #f472b6;
+      --green: #5eead4;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% 12%, rgba(56, 189, 248, 0.22), transparent 32%),
+        radial-gradient(circle at 80% 8%, rgba(244, 114, 182, 0.18), transparent 27%),
+        linear-gradient(145deg, transparent 0 47%, rgba(3, 21, 44, 0.72) 47% 58%, transparent 58%),
+        linear-gradient(215deg, transparent 0 52%, rgba(2, 16, 34, 0.86) 52% 65%, transparent 65%),
+        linear-gradient(330deg, transparent 0 57%, rgba(1, 11, 27, 0.94) 57% 72%, transparent 72%),
+        linear-gradient(145deg, #020617 0%, #06172f 52%, #03111f 100%);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(103, 232, 249, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(103, 232, 249, 0.05) 1px, transparent 1px),
+        linear-gradient(140deg, transparent 0 48%, rgba(6, 31, 62, 0.95) 48% 62%, transparent 62%),
+        linear-gradient(220deg, transparent 0 42%, rgba(3, 19, 42, 0.98) 42% 58%, transparent 58%),
+        linear-gradient(30deg, transparent 0 58%, rgba(1, 9, 23, 0.98) 58% 72%, transparent 72%);
+      background-size: 42px 42px, 100% 100%, 100% 100%, 100% 100%;
+      background-position: 0 0, 0 120px, 0 160px, 0 210px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -120px 0 0;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 0.34;
+      background-image:
+        linear-gradient(115deg, rgba(180, 240, 255, 0.72) 0 2px, transparent 2px 100%),
+        linear-gradient(115deg, rgba(56, 189, 248, 0.58) 0 1px, transparent 1px 100%),
+        linear-gradient(115deg, rgba(103, 232, 249, 0.38) 0 1px, transparent 1px 100%);
+      background-size: 42px 92px, 76px 132px, 118px 178px;
+      animation: rainFall 0.42s linear infinite;
+    }
+
+    @keyframes rainFall {
+      from {
+        background-position: 0 0, 38px 0, 72px 0;
+      }
+      to {
+        background-position: -42px 92px, -38px 132px, -46px 178px;
+      }
+    }
+
+    .page,
+    header {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      z-index: 30;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(18px);
+      background: rgba(3, 8, 21, 0.78);
+      border-bottom: 1px solid var(--line);
+    }
+
+    nav {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0;
+      color: #ffffff;
+      text-shadow: 0 0 18px rgba(56, 189, 248, 0.82);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 0.94rem;
+      color: var(--soft);
+    }
+
+    .nav-links a,
+    .button,
+    .music-button {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 13px;
+      background: rgba(8, 22, 45, 0.72);
+      color: var(--ink);
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.08);
+      cursor: pointer;
+    }
+
+    .nav-links a:hover,
+    .button:hover,
+    .music-button:hover {
+      border-color: rgba(103, 232, 249, 0.72);
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.22);
+    }
+
+    .hero {
+      min-height: calc(100vh - 70px);
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 38px;
+      align-items: center;
+      padding: 58px 0 42px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      margin-bottom: 18px;
+      padding: 7px 11px;
+      border: 1px solid rgba(94, 234, 212, 0.35);
+      border-radius: 8px;
+      color: var(--green);
+      background: rgba(6, 78, 59, 0.18);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      max-width: 680px;
+      font-size: clamp(3.2rem, 8vw, 7.4rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+      color: #ffffff;
+      text-shadow:
+        0 0 18px rgba(56, 189, 248, 0.82),
+        0 0 48px rgba(56, 189, 248, 0.38);
+    }
+
+    .hero p {
+      max-width: 620px;
+      margin-top: 24px;
+      color: var(--soft);
+      font-size: 1.08rem;
+    }
+
+    .actions {
+      margin-top: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.92), rgba(94, 234, 212, 0.86));
+      color: #02111f;
+      border-color: transparent;
+      font-weight: 800;
+    }
+
+    .profile-frame {
+      justify-self: center;
+      width: min(360px, 100%);
+      aspect-ratio: 1;
+      border: 1px solid rgba(103, 232, 249, 0.36);
+      border-radius: 18px;
+      padding: 16px;
+      background:
+        linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(244, 114, 182, 0.12)),
+        var(--panel);
+      box-shadow:
+        0 0 36px rgba(56, 189, 248, 0.18),
+        inset 0 0 26px rgba(103, 232, 249, 0.08);
+    }
+
+    .profile-photo {
+      height: 100%;
+      border-radius: 14px;
+      border: 1px dashed rgba(230, 246, 255, 0.36);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      background:
+        radial-gradient(circle at 48% 32%, rgba(103, 232, 249, 0.22), transparent 28%),
+        linear-gradient(160deg, rgba(2, 6, 23, 0.15), rgba(2, 6, 23, 0.78));
+      overflow: hidden;
+    }
+
+    .profile-photo span {
+      display: block;
+      padding: 18px;
+      color: var(--soft);
+      font-weight: 700;
+    }
+
+    section {
+      padding: 54px 0;
+      border-top: 1px solid rgba(103, 232, 249, 0.12);
+    }
+
+    h2 {
+      margin-bottom: 18px;
+      color: #ffffff;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: 0;
+      text-shadow: 0 0 18px rgba(56, 189, 248, 0.42);
+    }
+
+    .section-intro {
+      max-width: 720px;
+      color: var(--soft);
+      margin-bottom: 22px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      min-height: 180px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.24);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      color: #ffffff;
+      font-size: 1.14rem;
+    }
+
+    .card p {
+      color: var(--soft);
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .tag {
+      border: 1px solid rgba(103, 232, 249, 0.26);
+      border-radius: 8px;
+      padding: 6px 9px;
+      color: var(--cyan);
+      background: rgba(8, 22, 45, 0.75);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .game-preview,
+    .album-preview {
+      min-height: 280px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--panel-strong);
+      position: relative;
+    }
+
+    .game-art {
+      height: 100%;
+      min-height: 280px;
+      background:
+        linear-gradient(#153b68 0 18%, transparent 18%),
+        repeating-linear-gradient(90deg, transparent 0 58px, rgba(94, 234, 212, 0.58) 58px 116px, transparent 116px 174px),
+        linear-gradient(180deg, #071c35, #052036 60%, #063a2d);
+      position: relative;
+    }
+
+    .game-art::before {
+      content: "";
+      position: absolute;
+      left: 74px;
+      top: 114px;
+      width: 54px;
+      height: 42px;
+      border-radius: 50%;
+      background: #facc15;
+      box-shadow: 0 0 26px rgba(250, 204, 21, 0.45);
+    }
+
+    .game-art::after {
+      content: "";
+      position: absolute;
+      left: 118px;
+      top: 126px;
+      width: 22px;
+      height: 14px;
+      background: #fb923c;
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+
+    .album-preview {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .album-tile {
+      border-radius: 8px;
+      border: 1px solid rgba(230, 246, 255, 0.16);
+      background:
+        linear-gradient(145deg, rgba(56, 189, 248, 0.18), rgba(244, 114, 182, 0.18)),
+        radial-gradient(circle at 50% 28%, rgba(230, 246, 255, 0.16), transparent 28%),
+        #07172e;
+      display: grid;
+      place-items: center;
+      color: var(--soft);
+      font-weight: 800;
+      text-align: center;
+      padding: 12px;
+    }
+
+    .music-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: rgba(8, 22, 45, 0.82);
+    }
+
+    .music-box p {
+      color: var(--soft);
+    }
+
+    footer {
+      padding: 34px 0 46px;
+      color: var(--soft);
+      text-align: center;
+    }
+
+    @media (max-width: 850px) {
+      nav,
+      .hero,
+      .feature {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        padding: 12px 0;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .profile-frame {
+        justify-self: stretch;
+        max-width: 420px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .music-box {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a class="brand" href="#top">Tanmay Teja</a>
+      <div class="nav-links" aria-label="Main navigation">
+        <a href="#python">Python</a>
+        <a href="#game">Flappy Bird</a>
+        <a href="album.html">Album</a>
+        <a href="#music">Music</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top" class="page">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">17 year old learner, guitarist, and music lover</div>
+        <h1>Tanmay Teja</h1>
+        <p>
+          I am learning Python, building small projects, playing guitar, and collecting the creative things I make along the way.
+          This is my night-blue corner for code, music, games, and art.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="#game">View Flappy Bird</a>
+          <a class="button" href="album.html">Open Album</a>
+        </div>
+      </div>
+
+      <div class="profile-frame" aria-label="Profile photo placeholder">
+        <div class="profile-photo">
+          <span>Replace this area with your photo later</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="python">
+      <h2>Learning Python</h2>
+      <p class="section-intro">
+        My current focus is understanding Python basics, practicing logic, and making simple projects that teach me something new.
+      </p>
+      <div class="grid">
+        <article class="card">
+          <h3>What I Am Learning</h3>
+          <p>Variables, conditions, loops, functions, lists, and how to think like a problem solver.</p>
+          <div class="tag-row">
+            <span class="tag">Python</span>
+            <span class="tag">Beginner</span>
+          </div>
+        </article>
+        <article class="card">
+          <h3>My Goal</h3>
+          <p>Build small useful programs first, then slowly move into games, automation, and creative coding.</p>
+          <div class="tag-row">
+            <span class="tag">Practice</span>
+            <span class="tag">Projects</span>
+          </div>
+        </article>
+        <article class="card">
+          <h3>My Style</h3>
+          <p>I learn by trying, making mistakes, fixing them, and turning simple ideas into real things.</p>
+          <div class="tag-row">
+            <span class="tag">Curious</span>
+            <span class="tag">Creative</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="game">
+      <h2>Flappy Bird Game</h2>
+      <div class="feature">
+        <div class="game-preview" aria-label="Flappy Bird preview">
+          <div class="game-art"></div>
+        </div>
+        <article class="card">
+          <h3>My Browser Game</h3>
+          <p>
+            This is a JavaScript canvas game with a bird, pipes, score system, and leaderboard. It is one of my first projects,
+            and it helps me understand how real code updates and draws a game screen.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="index.html">Play Game</a>
+            <a class="button" href="album.html">See Creative Album</a>
+          </div>
+          <div class="tag-row">
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag">JavaScript</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="album">
+      <h2>Guitar And Art Album</h2>
+      <div class="feature">
+        <article class="card">
+          <h3>A Place For Creative Posts</h3>
+          <p>
+            The album page is made for guitar photos, artwork, music ideas, and any creative posts I want to keep together.
+            I can replace the placeholders with real photos later.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="album.html">Open Album</a>
+          </div>
+        </article>
+        <div class="album-preview" aria-label="Album preview">
+          <div class="album-tile">Guitar</div>
+          <div class="album-tile">Art</div>
+          <div class="album-tile">Music</div>
+          <div class="album-tile">Covers</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="music">
+      <h2>Background Music</h2>
+      <div class="music-box">
+        <div>
+          <h3>Night Blue Track</h3>
+          <p>Add a file named <strong>music.mp3</strong> in this folder later, then use this button to play it.</p>
+        </div>
+        <button class="music-button" id="musicButton" type="button">Play Music</button>
+        <audio id="bgMusic" src="music.mp3" loop></audio>
+      </div>
+    </section>
+
+    <section>
+      <h2>Links</h2>
+      <div class="grid">
+        <a class="card" href="#" aria-label="GitHub link placeholder">
+          <h3>GitHub</h3>
+          <p>Add your GitHub profile link here later.</p>
+        </a>
+        <a class="card" href="#" aria-label="Instagram link placeholder">
+          <h3>Instagram</h3>
+          <p>Add your Instagram profile link here later.</p>
+        </a>
+        <article class="card">
+          <h3>Currently</h3>
+          <p>Learning Python, playing guitar, listening to music, and building this portfolio step by step.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page">
+    Made by Tanmay Teja
+  </footer>
+
+  <script>
+    const music = document.getElementById("bgMusic");
+    const musicButton = document.getElementById("musicButton");
+
+    musicButton.addEventListener("click", async () => {
+      if (music.paused) {
+        try {
+          await music.play();
+          musicButton.textContent = "Pause Music";
+        } catch (error) {
+          musicButton.textContent = "Add music.mp3";
+        }
+      } else {
+        music.pause();
+        musicButton.textContent = "Play Music";
+      }
+    });
+  </script>
+</body>
+</html>
